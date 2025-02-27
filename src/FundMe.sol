@@ -13,7 +13,7 @@ contract FundMe {
     address[] public founders;
     mapping(address founder => uint256 amountFounded)
         public adressToAmountFounded;
-    address public immutable i_owner; ////gas optimization
+    address private immutable i_owner; ////gas optimization
 
     constructor() {
         i_owner = msg.sender;
@@ -66,5 +66,9 @@ contract FundMe {
 
     fallback() external payable {
         fund();
+    }
+
+    function getOwner() external view returns (address) {
+        return i_owner;
     }
 }

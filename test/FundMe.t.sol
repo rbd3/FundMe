@@ -11,6 +11,7 @@ contract FundMeTest is Test {
     FundMe fundMe;
     address USER = address(0);
     uint256 SEND_VALUE = 6e18; // 6 ETH
+    uint256 public GAS_PRICE = 1;
 
     function setUp() external {
         number = 2;
@@ -69,8 +70,15 @@ contract FundMeTest is Test {
     function testWithdrawSingleFunder() public funded {
         uint256 startingOwnerBalance = fundMe.getOwner().balance;
         uint256 startingFundMeBalance = address(fundMe).balance;
+
+        uint256 gasStart = gasleft();
+        vm.txGasPrice(GAS_PRICE);
         vm.prank(fundMe.getOwner());
         fundMe.withdraw();
+
+        uint256 gasEnd = gasleft();
+        uint256 gasUsed = (gasStart - gasEnd) * tx.gasprice;
+        console.log(gasUsed);
 
         uint256 endingOwnerBalance = fundMe.getOwner().balance;
         uint256 endingFundMeBalance = address(fundMe).balance;
@@ -93,6 +101,29 @@ contract FundMeTest is Test {
         uint256 startingFundMeBalance = address(fundMe).balance;
         vm.startPrank(fundMe.getOwner());
         fundMe.withdraw();
+        vm.stopPrank();
+
+        uint256 endingOwnerBalance = fundMe.getOwner().balance;
+        uint256 endingFundMeBalance = address(fundMe).balance;
+        assertEq(endingFundMeBalance, 0);
+        assertEq(
+            startingFundMeBalance + startingOwnerBalance,
+            endingOwnerBalance
+        );
+    }
+
+    function testMultipleFunderCheapper() public funded {
+        uint160 numbersOfFunder = 10;
+        uint160 startingFunderIndex = 1;
+        for (uint160 i = startingFunderIndex; i < numbersOfFunder; i++) {
+            hoax(address(i), SEND_VALUE);
+            fundMe.fund{value: SEND_VALUE}();
+        }
+
+        uint256 startingOwnerBalance = fundMe.getOwner().balance;
+        uint256 startingFundMeBalance = address(fundMe).balance;
+        vm.startPrank(fundMe.getOwner());
+        fundMe.cheaperWithdraw();
         vm.stopPrank();
 
         uint256 endingOwnerBalance = fundMe.getOwner().balance;

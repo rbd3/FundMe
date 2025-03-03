@@ -40,6 +40,26 @@ contract FundMe {
         _; // execute require then code
     }
 
+    function cheaperWithdraw() public onlyOwner {
+        uint256 fundersLength = founders.length; // gas optimization
+
+        for (uint256 i = 0; i < fundersLength; i++) {
+            address founder = founders[i];
+            adressToAmountFounded[founder] = 0; //reset adress
+        }
+        founders = new address[](0); //reset array or just  delete founders; // More gas-efficient than creating a new array
+        //payable (msg.sender).transfer(address(this).balance);
+        //bool success = payable (msg.sender).send(address(this).balance);
+        //require(success, "Send failed");
+        (bool callSucced, ) = payable(msg.sender).call{
+            value: address(this).balance
+        }("");
+        //require(callSucced, "call failed");
+        if (!callSucced) {
+            revert CallFailed();
+        }
+    }
+
     function withdraw() public onlyOwner {
         // require(msg.sender == owner, "your not allowed to withdraw this account"); use modifier instead
         for (uint256 i = 0; i < founders.length; i++) {

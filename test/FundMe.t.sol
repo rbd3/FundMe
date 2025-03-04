@@ -134,4 +134,6 @@ contract FundMeTest is Test {
             endingOwnerBalance
         );
     }
+
+    function testReceive() public {}
 }

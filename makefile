@@ -1,3 +1,3 @@
 -include .env
 
-build:; forge build
+build:; forge build # run 'make build' to build

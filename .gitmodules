@@ -4,3 +4,6 @@
 [submodule "lib/foundry-devops"]
 	path = lib/foundry-devops
 	url = https://github.com/cyfrin/foundry-devops
+[submodule "lib/foundry-zksync"]
+    path = foundry-zksync
+    url = https://github.com/matter-labs/foundry-zksync.git
